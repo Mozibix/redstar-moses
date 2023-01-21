@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  /* Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+}
+
+@font-face {
+  font-family: "BeaufortW01-Light";
+  src: url("//db.onlinewebfonts.com/t/dc8c80ed6bef76713d646e0770646ce3.eot");
+  src: url("//db.onlinewebfonts.com/t/dc8c80ed6bef76713d646e0770646ce3.eot?#iefix")
+      format("embedded-opentype"),
+    url("//db.onlinewebfonts.com/t/dc8c80ed6bef76713d646e0770646ce3.woff2")
+      format("woff2"),
+    url("//db.onlinewebfonts.com/t/dc8c80ed6bef76713d646e0770646ce3.woff")
+      format("woff"),
+    url("//db.onlinewebfonts.com/t/dc8c80ed6bef76713d646e0770646ce3.ttf")
+      format("truetype"),
+    url("//db.onlinewebfonts.com/t/dc8c80ed6bef76713d646e0770646ce3.svg#BeaufortW01-Light")
+      format("svg");
+}
+
+@font-face {
+  font-family: "Gotham Book", sans-serif;
+  src: url("https://fonts.cdnfonts.com/css/gotham-book");
+}
+
+button, a {
+  font: "Gotham Book";
+}
