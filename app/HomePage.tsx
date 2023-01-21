@@ -6,7 +6,12 @@ import { motion as m } from "framer-motion";
 import home from "../public/home.jpg";
 import Footer from "../components/Footer";
 
-const Room = ({ name, link }: { name: string; link: string }) => (
+type RoomType = {
+  name: string;
+  link: string;
+};
+
+const Room = ({ name, link }: RoomType) => (
   <div className="mt-2">
     <Link href={name}>
       <p className="mb-2 uppercase font-medium">{name}</p>
@@ -15,7 +20,13 @@ const Room = ({ name, link }: { name: string; link: string }) => (
   </div>
 );
 
-const Bar = ({ name, imageUrl, text }) => (
+type BarType = {
+  name: string;
+  imageUrl: string;
+  text: string;
+};
+
+const Bar = ({ name, imageUrl, text }: BarType) => (
   <div className="mt-4">
     <p className="uppercase text-xl">{name}</p>
     <div className="h-[50vh] w-full mx-auto my-4 relative">
@@ -32,7 +43,13 @@ const Bar = ({ name, imageUrl, text }) => (
   </div>
 );
 
-const Service = ({ name, imageUrl, text }) => (
+type ServiceType = {
+  name: string;
+  imageUrl: string;
+  text: string;
+};
+
+const Service = ({ name, imageUrl, text }: ServiceType) => (
   <div className="mx-auto mt-8">
     <p className="uppercase text-2xl">{name}</p>
     <div className="relative h-[45vh] w-full mt-4">
@@ -48,7 +65,15 @@ const Service = ({ name, imageUrl, text }) => (
   </div>
 );
 
-export default function HomePage({ rooms, services, barAndRestuarant }) {
+export default function HomePage({
+  rooms,
+  services,
+  barAndRestaurant,
+}: {
+  rooms: RoomType[];
+  services: ServiceType[];
+  barAndRestaurant: BarType[];
+}) {
   return (
     <m.div className="absolute top-0 left-0 w-full h-full">
       <section className="relative h-screen w-full text-white">
@@ -103,7 +128,7 @@ export default function HomePage({ rooms, services, barAndRestuarant }) {
         <p className="text-center text-4xl w-1/2 mx-auto">
           Visit the <span className="italic">Bar & Restaurant</span>
         </p>
-        {barAndRestuarant.map(({ name, text, imageUrl }) => (
+        {barAndRestaurant.map(({ name, text, imageUrl }: BarType) => (
           <Bar key={name} name={name} text={text} imageUrl={imageUrl} />
         ))}
       </section>

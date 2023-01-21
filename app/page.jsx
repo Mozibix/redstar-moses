@@ -24,7 +24,7 @@ export default async function Page() {
     <HomePage
       rooms={rooms.data}
       services={services.data}
-      barAndRestuarant={barAndRestaurant.data}
+      barAndRestaurant={barAndRestaurant.data}
     />
   );
 }

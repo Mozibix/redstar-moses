@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import React from "react";
 
 const Navbar = ({
@@ -18,10 +19,11 @@ const Navbar = ({
         <button onClick={handleMenu} className="uppercase">
           menu
         </button>
-        <div className="text-center tracking-widest">
+
+        <Link href="/" className="text-center tracking-widest">
           <p className="text-3xl">Orix</p>
           <p className="text-xs">empire</p>
-        </div>
+        </Link>
         <button className="uppercase">book</button>
       </nav>
     </header>
