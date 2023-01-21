@@ -13,7 +13,7 @@ const Navbar = ({
   };
 
   return (
-    <header className="fixed w-full top-0 z-50">
+    <header className="fixed w-full top-0 z-50 mix-blend-difference">
       <nav className="font-semibold flex justify-between uppercase items-start m-6 text-white">
         <button className="uppercase">menu</button>
         <div className="text-center tracking-widest">

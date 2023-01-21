@@ -23,7 +23,6 @@ export default function RootLayout({
 
           <AnimatePresence mode="wait">{children}</AnimatePresence>
         </div>
-        <Footer />
       </body>
     </html>
   );

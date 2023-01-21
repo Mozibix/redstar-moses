@@ -4,26 +4,51 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion as m } from "framer-motion";
 import home from "../public/home.jpg";
+import Footer from "../components/Footer";
 
-const RoomType = ({ name, link }: { name: string; link: string }) => (
+const Room = ({ name, link }: { name: string; link: string }) => (
   <div className="mt-2">
-    <Link href={link}>
+    <Link href={name}>
       <p className="mb-2 uppercase font-medium">{name}</p>
       <div className="h-[1px] bg-black w-full"></div>
     </Link>
   </div>
 );
 
-const rooms = [
-  { name: "room 1", link: "room" },
-  { name: "room 2", link: "room" },
-  { name: "room 3", link: "room" },
-  { name: "room 4", link: "room" },
-  { name: "room 5", link: "room" },
-  { name: "room 6", link: "room" },
-];
+const Bar = ({ name, imageUrl, text }) => (
+  <div className="mt-4">
+    <p className="uppercase text-xl">{name}</p>
+    <div className="h-[50vh] w-full mx-auto my-4 relative">
+      <Image
+        src={`${imageUrl}`}
+        alt="Restuarant"
+        className="object-cover brightness-95"
+        fill={true}
+        unoptimized
+      />
+    </div>
+    <p className="text-xl">{text}</p>
+    <button className="uppercase mt-2">More Information</button>
+  </div>
+);
 
-export default function HomePage() {
+const Service = ({ name, imageUrl, text }) => (
+  <div className="mx-auto mt-8">
+    <p className="uppercase text-2xl">{name}</p>
+    <div className="relative h-[45vh] w-full mt-4">
+      <Image
+        className="object-cover"
+        src={`${imageUrl}`}
+        alt={name}
+        fill={true}
+      />
+    </div>
+    <p className="text-xl my-4">{text}</p>
+    <button className="uppercase">more information</button>
+  </div>
+);
+
+export default function HomePage({ rooms, services, barAndRestuarant }) {
   return (
     <m.div className="absolute top-0 left-0 w-full h-full">
       <section className="relative h-screen w-full text-white">
@@ -54,7 +79,7 @@ export default function HomePage() {
             alt="outside"
             fill={true}
             className="bg-contain"
-            src="https://images.unsplash.com/photo-1522798514-97ceb8c4f1c8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=735&q=80"
+            src="https://images.unsplash.com/photo-1563493653502-9e270be23596?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80"
           />
         </div>
       </section>
@@ -63,7 +88,7 @@ export default function HomePage() {
           Choose your <span className="italic">room</span>
         </p>
         {rooms.map(({ name, link }) => (
-          <RoomType name={name} link={link} key={name} />
+          <Room name={name} link={link} key={name} />
         ))}
         <p className="mt-8 text-3xl">
           Subdued colours, soft textures, designer pieces, the soft touch of the
@@ -74,19 +99,28 @@ export default function HomePage() {
           Discover all rooms
         </button>
       </section>
-      <section className="mt-[10vh]">
+      <section className="mt-[10vh] mx-6">
         <p className="text-center text-4xl w-1/2 mx-auto">
           Visit the <span className="italic">Bar & Restaurant</span>
         </p>
-        <p>Orix Empire Restuarant</p>
-        <div className="h-screen w-11/12 mx-auto my-8 relative">
-          <Image
-            src="https://images.unsplash.com/photo-1578474846511-04ba529f0b88?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80"
-            alt="Restuarant"
-            fill={true}
-          />
-        </div>
+        {barAndRestuarant.map(({ name, text, imageUrl }) => (
+          <Bar key={name} name={name} text={text} imageUrl={imageUrl} />
+        ))}
       </section>
+      <div className="relative h-[50vh] w-full my-[20vh]">
+        <Image
+          fill={true}
+          alt="another room"
+          src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80"
+        />
+      </div>
+      <section className=" w-5/6 mx-auto">
+        <p className="text-5xl text-center">Other Services</p>
+        {services.map(({ name, text, imageUrl }) => (
+          <Service key={name} name={name} text={text} imageUrl={imageUrl} />
+        ))}
+      </section>
+      <Footer />
     </m.div>
   );
 }
