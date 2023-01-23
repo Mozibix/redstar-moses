@@ -8,9 +8,9 @@ const page = () => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      // options: {
-      //   data: { username },
-      // },
+      options: {
+        data: { username },
+      },
     });
     console.log("error", error);
     console.log("data", data);

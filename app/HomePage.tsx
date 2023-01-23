@@ -3,20 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useSupabase } from "../components/supabase-provider";
-
-const Rweet = (rweet) => {
-  const {
-    rweet: { text, created_at, user_id },
-  } = rweet;
-
-
-  return (
-    <div className="w-5/6 mx-auto p-4 shadow-sm bg-white rounded-md">
-      <p className="text-xl">{text}</p>
-      <p className="text-neutral-500 text-right">{created_at}</p>
-    </div>
-  );
-};
+import { AiFillDelete, AiFillEdit } from "react-icons/ai";
 
 export default function HomePage({ serverRweets }) {
   const { supabase, session } = useSupabase();
@@ -24,6 +11,47 @@ export default function HomePage({ serverRweets }) {
   const [rweets, setRweets] = useState(serverRweets);
   const rweetRef = useRef();
   const router = useRouter();
+
+  const Rweet = (rweet) => {
+    const {
+      rweet: { text, created_at, user_id, id },
+    } = rweet;
+
+    const [edit, setEdit] = useState(text);
+
+    // const { supabase } = useSupabase();
+
+    const deleteRweet = async () => {
+      console.log("id", id);
+
+      const x = await supabase.from("rweets").delete().eq("id", id);
+
+      console.log("data", x);
+    };
+
+    const editRweet = async () => {
+      const x = await supabase
+        .from("rweets")
+        .update({ text: edit })
+        .eq("id", id);
+
+      console.log(edit);
+
+      console.log("data", x);
+    };
+
+    return (
+      <div className="w-5/6 mx-auto p-4 shadow-sm bg-white rounded-md">
+        <div className="flex w-full justify-end gap-4 cursor-pointer">
+          <AiFillDelete onClick={deleteRweet} className="text-red-600" />
+          <AiFillEdit onClick={editRweet} className="text-green-600" />
+        </div>
+        <p className="text-xl">{text}</p>
+        <textarea value={edit} onChange={(e) => setEdit(e.target.value)} />
+        <p className="text-neutral-500 text-right">{created_at}</p>
+      </div>
+    );
+  };
 
   useEffect(() => {
     setRweets(serverRweets);
@@ -39,14 +67,12 @@ export default function HomePage({ serverRweets }) {
       )
       .subscribe();
 
-
     return () => {
       supabase.removeChannel(channel);
     };
   }, [supabase, setRweets, rweets]);
 
   const getUser = async () => {
-
     const {
       data: { user },
       error,
@@ -54,11 +80,9 @@ export default function HomePage({ serverRweets }) {
 
     setCurrentUser(user);
 
-
     if (!user) {
       router.push("/login");
     }
-
   };
 
   useEffect(() => {
@@ -75,7 +99,6 @@ export default function HomePage({ serverRweets }) {
     const { data, error } = await supabase
       .from("rweets")
       .insert({ text: rweetRef.current.value, user_id: currentUser.id });
-
 
     console.log("data", data);
 
