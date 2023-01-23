@@ -1,28 +1,30 @@
-"use client";
+import "server-only";
 import "../styles/globals.css";
-import Footer from "../components/Footer";
-import Navbar from "../components/Navbar";
-import Menu from "../components/Menu";
-import { useState } from "react";
-import { AnimatePresence } from "framer-motion";
 
-export default function RootLayout({
-  // Layouts must accept a children prop.
-  // This will be populated with nested layouts or pages
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [showMenu, setShowMenu] = useState<boolean>(false);
+import SupabaseListener from "../components/supabase-listener";
+import SupabaseProvider from "../components/supabase-provider";
+import { createClient } from "../utils/supabase-server";
+
+// do not cache this layout
+export const revalidate = 0;
+
+export default async function RootLayout({ children }) {
+  const supabase = createClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
   return (
     <html lang="en">
-      <body className="font-beaufort">
-        <div>
-          <Menu showMenu={showMenu} setShowMenu={setShowMenu} />
-          <Navbar showMenu={showMenu} setShowMenu={setShowMenu} />
-
-          <AnimatePresence mode="wait">{children}</AnimatePresence>
-        </div>
+      {/*
+      <head /> will contain the components returned by the nearest parent
+      head.tsx. Find out more at https://beta.nextjs.org/docs/api-reference/file-conventions/head
+    */}
+      <head />
+      <body>
+        <SupabaseProvider>
+          <SupabaseListener serverAccessToken={session?.access_token} />
+          {children}
+        </SupabaseProvider>
       </body>
     </html>
   );

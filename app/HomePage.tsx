@@ -1,151 +1,113 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
-import { motion as m } from "framer-motion";
-import home from "../public/home.jpg";
-import Footer from "../components/Footer";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useSupabase } from "../components/supabase-provider";
 
-type RoomType = {
-  name: string;
-  link: string;
-};
+const Rweet = (rweet) => {
+  const {
+    rweet: { text, created_at, user_id },
+  } = rweet;
 
-const Room = ({ name, link }: RoomType) => (
-  <div className="mt-2">
-    <Link href={name}>
-      <p className="mb-2 uppercase font-medium">{name}</p>
-      <div className="h-[1px] bg-black w-full"></div>
-    </Link>
-  </div>
-);
 
-type BarType = {
-  name: string;
-  imageUrl: string;
-  text: string;
-};
-
-const Bar = ({ name, imageUrl, text }: BarType) => (
-  <div className="mt-4">
-    <p className="uppercase text-xl">{name}</p>
-    <div className="h-[50vh] w-full mx-auto my-4 relative">
-      <Image
-        src={`${imageUrl}`}
-        alt="Restuarant"
-        className="object-cover brightness-95"
-        fill={true}
-        unoptimized
-      />
-    </div>
-    <p className="text-xl">{text}</p>
-    <button className="uppercase mt-2">More Information</button>
-  </div>
-);
-
-type ServiceType = {
-  name: string;
-  imageUrl: string;
-  text: string;
-};
-
-const Service = ({ name, imageUrl, text }: ServiceType) => (
-  <div className="mx-auto mt-8">
-    <p className="uppercase text-2xl">{name}</p>
-    <div className="relative h-[45vh] w-full mt-4">
-      <Image
-        className="object-cover"
-        src={`${imageUrl}`}
-        alt={name}
-        fill={true}
-      />
-    </div>
-    <p className="text-xl my-4">{text}</p>
-    <button className="uppercase">more information</button>
-  </div>
-);
-
-export default function HomePage({
-  rooms,
-  services,
-  barAndRestaurant,
-}: {
-  rooms: RoomType[];
-  services: ServiceType[];
-  barAndRestaurant: BarType[];
-}) {
   return (
-    <m.div className="absolute top-0 left-0 w-full h-full">
-      <section className="relative h-screen w-full text-white">
-        <Image
-          src="https://images.unsplash.com/photo-1631049421450-348ccd7f8949?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80"
-          alt="hotel room"
-          className="object-cover filter brightness-75"
-          fill={true}
-          unoptimized
-        />
-        <div className="absolute top-1/2 text-center w-full">
-          <p className="text-5xl w-[90%] mx-auto">
-            A place in the heart of the <span className="italic">center</span>{" "}
-          </p>
-        </div>
-      </section>
-      <section className="h-screen w-5/6 mx-auto text-center">
-        <p className="text-2xl pt-[10vh]">
-          A sophisticated and cosmopolitan atmosphere that reflects the most
-          elegant and exclusive heritage of Madrid and combines it with the
-          city’s modernity and multiculturalism.
-        </p>
-        <button className="uppercase font-semibold mt-4 mb-16">
-          Book with us
+    <div className="w-5/6 mx-auto p-4 shadow-sm bg-white rounded-md">
+      <p className="text-xl">{text}</p>
+      <p className="text-neutral-500 text-right">{created_at}</p>
+    </div>
+  );
+};
+
+export default function HomePage({ serverRweets }) {
+  const { supabase, session } = useSupabase();
+  const [currentUser, setCurrentUser] = useState({});
+  const [rweets, setRweets] = useState(serverRweets);
+  const rweetRef = useRef();
+  const router = useRouter();
+
+  useEffect(() => {
+    setRweets(serverRweets);
+  }, [serverRweets]);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("*")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "rweets" },
+        (payload) => setRweets((rweets) => [...rweets, payload.new])
+      )
+      .subscribe();
+
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase, setRweets, rweets]);
+
+  const getUser = async () => {
+
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
+    setCurrentUser(user);
+
+
+    if (!user) {
+      router.push("/login");
+    }
+
+  };
+
+  useEffect(() => {
+    getUser();
+  }, []);
+
+  const signOut = () => {
+    supabase.auth.signOut();
+    setCurrentUser({});
+    router.push("/login");
+  };
+
+  const postRweet = async () => {
+    const { data, error } = await supabase
+      .from("rweets")
+      .insert({ text: rweetRef.current.value, user_id: currentUser.id });
+
+
+    console.log("data", data);
+
+    console.log("error", error);
+  };
+
+  return (
+    <div className="bg-neutral-50 h-screen">
+      <div className="flex justify-between p-4 bg-red-500 text-white items-start">
+        <p className="text-2xl">Redstar</p>
+        <button className="border p-2" onClick={signOut}>
+          Sign Out
         </button>
-        <div className="relative h-1/3 w-full">
-          <Image
-            alt="outside"
-            fill={true}
-            className="bg-contain"
-            src="https://images.unsplash.com/photo-1563493653502-9e270be23596?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80"
-          />
-        </div>
-      </section>
-      <section className="h-screen w-5/6 mx-auto pt-[5vh] text-center flex flex-col justify-between">
-        <p className="text-5xl mb-8">
-          Choose your <span className="italic">room</span>
-        </p>
-        {rooms.map(({ name, link }) => (
-          <Room name={name} link={link} key={name} />
-        ))}
-        <p className="mt-8 text-3xl">
-          Subdued colours, soft textures, designer pieces, the soft touch of the
-          Egyptian thread sheets, the pause, the calm, the silence… A private
-          and personal space.
-        </p>
-        <button className="uppercase mt-2 font-semibold">
-          Discover all rooms
-        </button>
-      </section>
-      <section className="mt-[10vh] mx-6">
-        <p className="text-center text-4xl w-1/2 mx-auto">
-          Visit the <span className="italic">Bar & Restaurant</span>
-        </p>
-        {barAndRestaurant.map(({ name, text, imageUrl }: BarType) => (
-          <Bar key={name} name={name} text={text} imageUrl={imageUrl} />
-        ))}
-      </section>
-      <div className="relative h-[50vh] w-full my-[20vh]">
-        <Image
-          fill={true}
-          alt="another room"
-          src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80"
-        />
       </div>
-      <section className=" w-5/6 mx-auto">
-        <p className="text-5xl text-center">Other Services</p>
-        {services.map(({ name, text, imageUrl }) => (
-          <Service key={name} name={name} text={text} imageUrl={imageUrl} />
+      <p className="text-right my-4 w-5/6 mx-auto">
+        {currentUser?.user_metadata?.username}
+      </p>
+
+      <div className="flex flex-col items-start w-5/6 mx-auto justify-between gap-4">
+        <textarea className="border p-4 w-full" ref={rweetRef} />
+        <button
+          onClick={postRweet}
+          className="text-white bg-red-600 w-full rounded-sm p-2 uppercase"
+        >
+          post
+        </button>
+      </div>
+      <div className="flex flex-col gap-2 my-4">
+        {rweets.map((rweet, index) => (
+          <Rweet rweet={rweet} key={index} />
         ))}
-      </section>
-      <Footer />
-    </m.div>
+      </div>
+    </div>
   );
 }
