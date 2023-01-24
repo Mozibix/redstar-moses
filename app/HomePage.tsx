@@ -3,7 +3,104 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useSupabase } from "../components/supabase-provider";
-import { AiFillDelete, AiFillEdit } from "react-icons/ai";
+import { AiFillDelete, AiFillEdit, AiFillMessage } from "react-icons/ai";
+
+const Rweet = ({ rweet, userId }) => {
+  const { text, created_at, user_id, id } = rweet;
+
+  const [edit, setEdit] = useState(text);
+
+  const { supabase } = useSupabase();
+
+  const deleteRweet = async () => {
+    console.log("id", id);
+
+    const x = await supabase.from("rweets").delete().eq("id", id);
+
+    console.log("data", x);
+  };
+
+  const editRweet = async () => {
+    const x = await supabase.from("rweets").update({ text: edit }).eq("id", id);
+
+    console.log(edit);
+
+    console.log("data", x);
+  };
+
+  const [showComments, setShowComments] = useState(false);
+
+  return (
+    <div className="w-5/6 mx-auto p-4 shadow-sm bg-white rounded-md">
+      <div className="flex w-full justify-end gap-4 cursor-pointer">
+        <AiFillDelete onClick={deleteRweet} className="text-red-600" />
+        <AiFillEdit onClick={editRweet} className="text-green-600" />
+      </div>
+      <p className="text-xl">{text}</p>
+      <textarea value={edit} onChange={(e) => setEdit(e.target.value)} />
+      <p className="text-neutral-500 text-right">{created_at}</p>
+      <AiFillMessage
+        onClick={() => {
+          setShowComments(!showComments);
+        }}
+        className="text-neutral-500"
+      />
+
+      {showComments ? <Comment userId={userId} rweetId={id} /> : <></>}
+    </div>
+  );
+};
+
+const Comment = ({ userId, rweetId }) => {
+  const commentRef = useRef();
+  const { supabase } = useSupabase();
+  const [postComments, setPostComments] = useState([]);
+
+  const postComment = async () => {
+    const { data, error } = await supabase.from("comments").insert([
+      {
+        comment: commentRef.current.value,
+        user_id: userId,
+        rweet_id: rweetId,
+      },
+    ]);
+  };
+
+  const getComments = async () => {
+    let { data: comments, error } = await supabase.from("comments").select("*");
+    setPostComments(comments);
+  };
+
+  // Moses Write the code to delete this comment
+  const deleteComment = () => {};
+
+  useEffect(() => {
+    getComments();
+  }, []);
+
+  return (
+    <div className="">
+      <div className="my-4 flex gap-2">
+        <textarea className="border" type="text" ref={commentRef} />
+        <button
+          onClick={postComment}
+          className="border px-4 uppercase bg-red-400 text-white"
+        >
+          post
+        </button>
+      </div>
+      {postComments.map((comment, index) => (
+        <div className="flex gap-1">
+          <div className="">
+            <p className="w-full">{comment.user_id}</p>
+            <p>{comment.comment}</p>
+          </div>
+          <AiFillDelete className="" />
+        </div>
+      ))}
+    </div>
+  );
+};
 
 export default function HomePage({ serverRweets }) {
   const { supabase, session } = useSupabase();
@@ -11,47 +108,6 @@ export default function HomePage({ serverRweets }) {
   const [rweets, setRweets] = useState(serverRweets);
   const rweetRef = useRef();
   const router = useRouter();
-
-  const Rweet = (rweet) => {
-    const {
-      rweet: { text, created_at, user_id, id },
-    } = rweet;
-
-    const [edit, setEdit] = useState(text);
-
-    // const { supabase } = useSupabase();
-
-    const deleteRweet = async () => {
-      console.log("id", id);
-
-      const x = await supabase.from("rweets").delete().eq("id", id);
-
-      console.log("data", x);
-    };
-
-    const editRweet = async () => {
-      const x = await supabase
-        .from("rweets")
-        .update({ text: edit })
-        .eq("id", id);
-
-      console.log(edit);
-
-      console.log("data", x);
-    };
-
-    return (
-      <div className="w-5/6 mx-auto p-4 shadow-sm bg-white rounded-md">
-        <div className="flex w-full justify-end gap-4 cursor-pointer">
-          <AiFillDelete onClick={deleteRweet} className="text-red-600" />
-          <AiFillEdit onClick={editRweet} className="text-green-600" />
-        </div>
-        <p className="text-xl">{text}</p>
-        <textarea value={edit} onChange={(e) => setEdit(e.target.value)} />
-        <p className="text-neutral-500 text-right">{created_at}</p>
-      </div>
-    );
-  };
 
   useEffect(() => {
     setRweets(serverRweets);
@@ -128,7 +184,7 @@ export default function HomePage({ serverRweets }) {
       </div>
       <div className="flex flex-col gap-2 my-4">
         {rweets.map((rweet, index) => (
-          <Rweet rweet={rweet} key={index} />
+          <Rweet userId={currentUser.id} rweet={rweet} key={index} />
         ))}
       </div>
     </div>
